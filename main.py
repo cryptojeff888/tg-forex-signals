@@ -13,29 +13,49 @@ CHANNEL_ID = os.getenv("CHANNEL_ID")
 # 初始化 Supabase
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-def get_latest_signals():
-    # 先取最近 1 条测试
-    res = supabase.table("signals").select("*").order("created_at", desc=True).limit(1).execute()
+# 记录上一次发送过的信号 ID
+last_sent_id = None
+
+def get_latest_signal():
+    """获取 signals_with_rates 表中最新 1 条信号"""
+    res = (
+        supabase.table("signals_with_rates")
+        .select("id, symbol, direction, entry, tp, sl, group_win_rate")
+        .order("created_at", desc=True)
+        .limit(1)
+        .execute()
+    )
     return res.data
 
 def send_to_channel(text):
+    """发消息到 Telegram 频道"""
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     requests.post(url, json={"chat_id": CHANNEL_ID, "text": text})
 
 def run():
-    signals = get_latest_signals()
+    """检查并发送新信号"""
+    global last_sent_id
+    signals = get_latest_signal()
     for sig in signals:
+        sig_id = sig.get("id")
+        if sig_id == last_sent_id:
+            continue  # 已经发过，跳过
+        last_sent_id = sig_id  # 更新为最新 ID
+
         msg = f"""
 🔥 New Signal
-Pair: {sig.get('symbol')}
-Direction: {sig.get('direction')}
-Entry: {sig.get('entry')} | TP: {sig.get('tp')} | SL: {sig.get('sl')}
-📊 Win Rate: {sig.get('win_rate', 'N/A')}%
+
+**Pair:** {sig.get('symbol')}
+**Direction:** {sig.get('direction')}
+**Entry:** {sig.get('entry')}
+**TP:** {sig.get('tp')}
+**SL:** {sig.get('sl')}
+**📊 Win Rate:** {sig.get('group_win_rate', 'N/A')}%
 """
         send_to_channel(msg)
 
 if __name__ == "__main__":
-    send_to_channel("✅ Bot connected successfully! Test message.")
+    send_to_channel("🔄 Bot restarted, now monitoring signals...")
     while True:
         run()
         time.sleep(60)  # 每分钟检查一次
