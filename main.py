@@ -2,9 +2,9 @@ import os
 import time
 import requests
 from supabase import create_client
-from datetime import datetime, timedelta
+from datetime import datetime
 
-# 从 Railway 环境变量读取配置
+# 从 Railway 环境变量读取
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -14,8 +14,8 @@ CHANNEL_ID = os.getenv("CHANNEL_ID")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def get_latest_signals():
-    since = (datetime.utcnow() - timedelta(minutes=1)).isoformat()
-    res = supabase.table("signals").select("*").gte("created_at", since).execute()
+    # 先取最近 1 条测试
+    res = supabase.table("signals").select("*").order("created_at", desc=True).limit(1).execute()
     return res.data
 
 def send_to_channel(text):
