@@ -28,9 +28,12 @@ def get_latest_signal():
     return res.data
 
 def send_to_channel(text):
-    """发消息到 Telegram 频道"""
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    requests.post(url, json={"chat_id": CHANNEL_ID, "text": text})
+    requests.post(url, json={
+        "chat_id": CHANNEL_ID,
+        "text": text,
+        "parse_mode": "Markdown"   # ✅ 让 **加粗** 生效
+    })
 
 def run():
     """检查并发送新信号"""
@@ -40,17 +43,26 @@ def run():
         sig_id = sig.get("id")
         if sig_id == last_sent_id:
             continue  # 已经发过，跳过
-        last_sent_id = sig_id  # 更新为最新 ID
+                        last_sent_id = sig_id  # 更新为最新 ID
+
+        # 根据方向加上 emoji
+        direction = sig.get('direction', '')
+        if direction and "buy" in direction.lower():
+            direction_display = f"**Direction:** BUY 📈"
+        elif direction and "sell" in direction.lower():
+            direction_display = f"**Direction:** SELL 📉"
+        else:
+            direction_display = f"**Direction:** {direction}"
 
         msg = f"""
-🔥 New Signal
+🔥 *New Signal*
 
 **Pair:** {sig.get('symbol')}
-**Direction:** {sig.get('direction')}
+{direction_display}
 **Entry:** {sig.get('entry')}
 **TP:** {sig.get('tp')}
 **SL:** {sig.get('sl')}
-**📊 Win Rate:** {sig.get('group_win_rate', 'N/A')}%
+**Win Rate:** {sig.get('group_win_rate', 'N/A')}%
 """
         send_to_channel(msg)
 
