@@ -43,8 +43,10 @@ def run():
         sig_id = sig.get("id")
         if sig_id == last_sent_id:
             continue  # 已经发过，跳过
-                        last_sent_id = sig_id  # 更新为最新 ID
 
+        # 更新为最新 ID
+        last_sent_id = sig_id  
+                        
         # 根据方向加上 emoji
         direction = sig.get('direction', '')
         if direction and "buy" in direction.lower():
