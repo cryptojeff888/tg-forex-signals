@@ -50,21 +50,21 @@ def run():
         # 根据方向加上 emoji
         direction = sig.get('direction', '')
         if direction and "buy" in direction.lower():
-            direction_display = f"**Direction:** BUY 📈"
+            direction_display = f"*Direction:* BUY 📈"
         elif direction and "sell" in direction.lower():
-            direction_display = f"**Direction:** SELL 📉"
+            direction_display = f"*Direction:* SELL 📉"
         else:
-            direction_display = f"**Direction:** {direction}"
+            direction_display = f"*Direction:* {direction}"
 
         msg = f"""
 🔥 *New Signal*
 
-**Pair:** {sig.get('symbol')}
+*Pair:* {sig.get('symbol')}
 {direction_display}
-**Entry:** {sig.get('entry')}
-**TP:** {sig.get('tp')}
-**SL:** {sig.get('sl')}
-**Win Rate:** {sig.get('group_win_rate', 'N/A')}%
+*Entry:* {sig.get('entry')}
+*TP:* {sig.get('tp')}
+*SL:* {sig.get('sl')}
+*Win Rate:* {sig.get('group_win_rate', 'N/A')}%
 """
         send_to_channel(msg)
 
