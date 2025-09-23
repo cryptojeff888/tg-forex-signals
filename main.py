@@ -35,6 +35,7 @@ Entry: {sig.get('entry')} | TP: {sig.get('tp')} | SL: {sig.get('sl')}
         send_to_channel(msg)
 
 if __name__ == "__main__":
+    send_to_channel("✅ Bot connected successfully! Test message.")
     while True:
         run()
         time.sleep(60)  # 每分钟检查一次
