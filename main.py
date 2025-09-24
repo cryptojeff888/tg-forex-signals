@@ -20,7 +20,7 @@ def get_latest_signal():
     """获取 signals_with_rates 表中最新 1 条信号"""
     res = (
         supabase.table("signals_with_rates")
-        .select("id, symbol, direction, entry, tp, sl, group_win_rate")
+        .select("id, symbol, direction, entry, tp, sl, group_win_rate_calc")
         .order("created_at", desc=True)
         .limit(1)
         .execute()
@@ -57,14 +57,15 @@ def run():
             direction_display = f"*Direction:* {direction}"
 
         msg = f"""
-🔥 *New Signal*
+🔥 *New Signal* 🔥
 
-*Pair:* {sig.get('symbol')}
-{direction_display}
-*Entry:* {sig.get('entry')}
-*TP:* {sig.get('tp')}
-*SL:* {sig.get('sl')}
-*Win Rate:* {sig.get('group_win_rate_calc', 'N/A')}%
+💹 *Pair:* {sig.get('symbol')}
+📍 {direction_display}
+🎯 *Entry:* {sig.get('entry')}
+✔️ *TP:* {sig.get('tp')}
+🛑 *SL:* {sig.get('sl')}
+
+🏆 *Win Rate:* {sig.get('group_win_rate_calc', 'N/A')}% 
 """
         send_to_channel(msg)
 
