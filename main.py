@@ -79,6 +79,9 @@ def run():
 🏆 *Win Rate:* {sig.get('group_win_rate_calc', 'N/A')}% 
 """
         send_to_channel(msg)
+        
+        # ✅ 发完之后更新 last_sent_id
+        last_sent_id = sig_id
 
 if __name__ == "__main__":
     while True:
