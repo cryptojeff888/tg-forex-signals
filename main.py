@@ -52,12 +52,23 @@ def run():
                         
         # 根据方向加上 emoji
         direction = sig.get('direction', '')
-        if direction and "buy" in direction.lower():
-            direction_display = f"*Direction:* BUY 📈"
-        elif direction and "sell" in direction.lower():
-            direction_display = f"*Direction:* SELL 📉"
-        else:
-            direction_display = f"*Direction:* {direction}"
+
+if direction:
+    d = direction.lower()
+    if "buy_limit" in d:
+        direction_display = f"*Direction:* BUY LIMIT 📈"
+    elif "sell_limit" in d:
+        direction_display = f"*Direction:* SELL LIMIT 📉"
+    elif "buy_stop" in d:
+        direction_display = f"*Direction:* BUY STOP 📈"
+    elif "sell_stop" in d:
+        direction_display = f"*Direction:* SELL STOP 📉"
+    elif d == "buy":
+        direction_display = f"*Direction:* BUY 📈"
+    elif d == "sell":
+        direction_display = f"*Direction:* SELL 📉"
+    else:
+        direction_display = f"*Direction:* {direction.upper()}"
 
         msg = f"""
 🔥 *New Signal* 🔥
