@@ -47,29 +47,28 @@ def run():
         if sig_id == last_sent_id:
             continue  # 已经发过，跳过
 
-        # 更新为最新 ID
-        last_sent_id = sig_id  
-                        
-        # 根据方向加上 emoji
-        direction = sig.get('direction', '')
+# 更新为最新 ID
+last_sent_id = sig_id  
+
+# 先从 signal 里取出 direction
+direction = sig.get("direction", "")
 
 if direction:
     d = direction.lower()
     if "buy_limit" in d:
-        direction_display = f"*Direction:* BUY LIMIT 📈"
+        direction_display = "*Direction:* BUY LIMIT 📈"
     elif "sell_limit" in d:
-        direction_display = f"*Direction:* SELL LIMIT 📉"
+        direction_display = "*Direction:* SELL LIMIT 📉"
     elif "buy_stop" in d:
-        direction_display = f"*Direction:* BUY STOP 📈"
+        direction_display = "*Direction:* BUY STOP 📈"
     elif "sell_stop" in d:
-        direction_display = f"*Direction:* SELL STOP 📉"
+        direction_display = "*Direction:* SELL STOP 📉"
     elif d == "buy":
-        direction_display = f"*Direction:* BUY 📈"
+        direction_display = "*Direction:* BUY 📈"
     elif d == "sell":
-        direction_display = f"*Direction:* SELL 📉"
+        direction_display = "*Direction:* SELL 📉"
     else:
-        direction_display = f"*Direction:* {direction.upper()}"
-
+        direction_display = f"*Direction:* {direction.replace('_', ' ').upper()}"
         msg = f"""
 🔥 *New Signal* 🔥
 
