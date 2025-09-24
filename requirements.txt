@@ -1,4 +1,4 @@
-supabase-py
+supabase
 requests
 fastapi
 uvicorn
