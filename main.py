@@ -64,7 +64,7 @@ def run():
 *Entry:* {sig.get('entry')}
 *TP:* {sig.get('tp')}
 *SL:* {sig.get('sl')}
-*Win Rate:* {sig.get('group_win_rate', 'N/A')}%
+*Win Rate:* {sig.get('group_win_rate_calc', 'N/A')}%
 """
         send_to_channel(msg)
 
