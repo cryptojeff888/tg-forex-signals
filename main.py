@@ -70,7 +70,7 @@ def run():
         send_to_channel(msg)
 
 if __name__ == "__main__":
-    send_to_channel("🔄 Bot restarted, now monitoring signals...")
     while True:
         run()
-        time.sleep(60)  # 每分钟检查一次
+        time.sleep(60)
+
