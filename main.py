@@ -47,28 +47,26 @@ def run():
         if sig_id == last_sent_id:
             continue  # 已经发过，跳过
 
-# 更新为最新 ID
-last_sent_id = sig_id  
-
-# 先从 signal 里取出 direction
-direction = sig.get("direction", "")
-
-if direction:
-    d = direction.lower()
-    if "buy_limit" in d:
-        direction_display = "*Direction:* BUY LIMIT 📈"
-    elif "sell_limit" in d:
-        direction_display = "*Direction:* SELL LIMIT 📉"
-    elif "buy_stop" in d:
-        direction_display = "*Direction:* BUY STOP 📈"
-    elif "sell_stop" in d:
-        direction_display = "*Direction:* SELL STOP 📉"
-    elif d == "buy":
-        direction_display = "*Direction:* BUY 📈"
-    elif d == "sell":
-        direction_display = "*Direction:* SELL 📉"
-    else:
-        direction_display = f"*Direction:* {direction.replace('_', ' ').upper()}"
+        # 先从 signal 里取出 direction
+        direction = sig.get("direction", "")
+        if direction:
+            d = direction.lower()
+            if "buy_limit" in d:
+                direction_display = "*Direction:* BUY LIMIT 📈"
+            elif "sell_limit" in d:
+                direction_display = "*Direction:* SELL LIMIT 📉"
+            elif "buy_stop" in d:
+                direction_display = "*Direction:* BUY STOP 📈"
+            elif "sell_stop" in d:
+                direction_display = "*Direction:* SELL STOP 📉"
+            elif d == "buy":
+                direction_display = "*Direction:* BUY 📈"
+            elif d == "sell":
+                direction_display = "*Direction:* SELL 📉"
+            else:
+                direction_display = f"*Direction:* {direction.replace('_', ' ').upper()}"
+        else:
+            direction_display = "*Direction:* N/A"
         msg = f"""
 🔥 *New Signal* 🔥
 
