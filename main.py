@@ -5,13 +5,16 @@ from supabase import create_client
 from datetime import datetime
 
 # 从 Railway 环境变量读取
-SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_URL = os.getenv("SUPABASE_URL")         # 旧库（signals）
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_USER_URL = os.getenv("SUPABASE_USER_URL")  # 新库（用户）
+SUPABASE_USER_KEY = os.getenv("SUPABASE_USER_KEY")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
 
 # 初始化 Supabase
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)              # 旧的 → 读 signals
+user_db = create_client(SUPABASE_USER_URL, SUPABASE_USER_KEY)     # 新的 → 写用户
 
 # 记录上一次发送过的信号 ID
 last_sent_id = None
