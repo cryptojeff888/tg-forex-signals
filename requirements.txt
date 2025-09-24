@@ -1,2 +1,5 @@
-supabase
+supabase-py
 requests
+fastapi
+uvicorn
+python-dotenv
