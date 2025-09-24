@@ -16,7 +16,7 @@ def test_insert_user():
         "tg_username": "testuser123",
         "plan": "monthly",
         "created_at": datetime.utcnow().isoformat(),
-        "expire_at": "2025-10-24T08:54:34.512Z",   # 测试先写死，实际用代码算
+        "expired_at": "2025-10-24T08:54:34.512Z",   # 测试先写死，实际用代码算
         "status": "active"
     }).execute()
     print("✅ Insert result:", res)
