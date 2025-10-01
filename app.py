@@ -1,13 +1,26 @@
-import os
-import stripe
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from paypal_webhook import app as paypal_app
 from stripe_webhook import app as stripe_app
+import stripe
+import os
 
-# 初始化 Stripe
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
-
+# === 初始化 FastAPI ===
 app = FastAPI()
+
+# === CORS 设置 ===
+origins = [
+    "https://tradingvault.base44.app",  # 你的前端域名
+    "http://localhost:3000",            # 本地调试时用
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # === 合并 PayPal 路由 ===
 for route in paypal_app.routes:
@@ -17,22 +30,25 @@ for route in paypal_app.routes:
 for route in stripe_app.routes:
     app.router.routes.append(route)
 
+# === Stripe 初始化 ===
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+
 # === Stripe Checkout Session 创建接口 ===
 @app.post("/create-checkout-session")
 async def create_checkout_session(plan: str = "monthly"):
     """
     根据传入的 plan 创建 Stripe Checkout Session
-    前端可能传过来的是显示名字 (7-Day Trial / Monthly / Lifetime Access)，
-    这里统一映射成后端内部识别的 key (trial / monthly / lifetime)。
+    前端可能传 "7-Day Trial" / "Monthly" / "Lifetime Access"
+    这里统一映射成内部 key: trial / monthly / lifetime
     """
 
-    # === Stripe Price IDs ===
+    # Stripe Price IDs
     price_map = {
         "monthly": "price_1SD6H1EqeYLgpt07bVN9S6xP",    # TradingVault Monthly ($29.90 / month)
         "lifetime": "price_1SD6JvEqeYLgpt079qicqkx4",   # TradingVault Lifetime ($299 one-time)
     }
 
-    # === 兼容前端显示名称 ===
+    # 兼容映射
     plan_map = {
         "7-Day Trial": "trial",
         "Monthly": "monthly",
@@ -48,12 +64,12 @@ async def create_checkout_session(plan: str = "monthly"):
 
     try:
         if normalized_plan == "trial":
-            # Trial: 收 $12.90 upfront, 然后 7天后自动转 $29.90/month
+            # Trial: 先收 $12.90，再 7天后转为 $29.90/month
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=["card"],
                 mode="subscription",
                 line_items=[{
-                    "price": price_map["monthly"],  # 用 monthly price 做订阅
+                    "price": price_map["monthly"],
                     "quantity": 1,
                 }],
                 subscription_data={
@@ -75,7 +91,7 @@ async def create_checkout_session(plan: str = "monthly"):
             )
 
         elif normalized_plan == "monthly":
-            # 直接进入月订阅
+            # 月付订阅
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=["card"],
                 mode="subscription",
