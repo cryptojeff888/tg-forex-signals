@@ -17,13 +17,13 @@ for route in paypal_app.routes:
 for route in stripe_app.routes:
     app.router.routes.append(route)
 
-
 # === Stripe Checkout Session 创建接口 ===
 @app.post("/create-checkout-session")
 async def create_checkout_session(plan: str = "monthly"):
     """
-    根据传入的 plan (trial | monthly | lifetime)
-    创建 Stripe Checkout Session
+    根据传入的 plan 创建 Stripe Checkout Session
+    前端可能传过来的是显示名字 (7-Day Trial / Monthly / Lifetime Access)，
+    这里统一映射成后端内部识别的 key (trial / monthly / lifetime)。
     """
 
     # === Stripe Price IDs ===
@@ -32,14 +32,28 @@ async def create_checkout_session(plan: str = "monthly"):
         "lifetime": "price_1SD6JvEqeYLgpt079qicqkx4",   # TradingVault Lifetime ($299 one-time)
     }
 
+    # === 兼容前端显示名称 ===
+    plan_map = {
+        "7-Day Trial": "trial",
+        "Monthly": "monthly",
+        "Lifetime Access": "lifetime",
+        "trial": "trial",
+        "monthly": "monthly",
+        "lifetime": "lifetime",
+    }
+    normalized_plan = plan_map.get(plan, None)
+
+    if not normalized_plan:
+        return {"error": f"Invalid plan: {plan}"}
+
     try:
-        if plan == "trial":
+        if normalized_plan == "trial":
             # Trial: 收 $12.90 upfront, 然后 7天后自动转 $29.90/month
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=["card"],
                 mode="subscription",
                 line_items=[{
-                    "price": price_map["monthly"],  # 用 monthly 这个 price
+                    "price": price_map["monthly"],  # 用 monthly price 做订阅
                     "quantity": 1,
                 }],
                 subscription_data={
@@ -60,7 +74,7 @@ async def create_checkout_session(plan: str = "monthly"):
                 cancel_url="https://tradingvault.base44.app/?status=cancel",
             )
 
-        elif plan == "monthly":
+        elif normalized_plan == "monthly":
             # 直接进入月订阅
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=["card"],
@@ -73,7 +87,7 @@ async def create_checkout_session(plan: str = "monthly"):
                 cancel_url="https://tradingvault.base44.app/?status=cancel",
             )
 
-        elif plan == "lifetime":
+        elif normalized_plan == "lifetime":
             # 一次性付费
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=["card"],
@@ -85,9 +99,6 @@ async def create_checkout_session(plan: str = "monthly"):
                 success_url="https://tradingvault.base44.app/?status=success",
                 cancel_url="https://tradingvault.base44.app/?status=cancel",
             )
-
-        else:
-            return {"error": f"Invalid plan: {plan}"}
 
         return {"url": checkout_session.url}
 
