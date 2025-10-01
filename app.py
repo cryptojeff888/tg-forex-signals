@@ -56,11 +56,9 @@ async def create_checkout_session(plan: str = "monthly"):
                         }
                     ]
                 },
-                }],
-    success_url="https://tradingvault.base44.app/?status=success",
-    cancel_url="https://tradingvault.base44.app/?status=cancel",
-)
-
+                success_url="https://tradingvault.base44.app/?status=success",
+                cancel_url="https://tradingvault.base44.app/?status=cancel",
+            )
 
         elif plan == "monthly":
             # 直接进入月订阅
@@ -71,10 +69,9 @@ async def create_checkout_session(plan: str = "monthly"):
                     "price": price_map["monthly"],
                     "quantity": 1,
                 }],
-    success_url="https://tradingvault.base44.app/?status=success",
-    cancel_url="https://tradingvault.base44.app/?status=cancel",
-)
-
+                success_url="https://tradingvault.base44.app/?status=success",
+                cancel_url="https://tradingvault.base44.app/?status=cancel",
+            )
 
         elif plan == "lifetime":
             # 一次性付费
@@ -85,10 +82,9 @@ async def create_checkout_session(plan: str = "monthly"):
                     "price": price_map["lifetime"],
                     "quantity": 1,
                 }],
-    success_url="https://tradingvault.base44.app/?status=success",
-    cancel_url="https://tradingvault.base44.app/?status=cancel",
-)
-
+                success_url="https://tradingvault.base44.app/?status=success",
+                cancel_url="https://tradingvault.base44.app/?status=cancel",
+            )
 
         else:
             return {"error": f"Invalid plan: {plan}"}
