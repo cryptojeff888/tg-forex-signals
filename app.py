@@ -131,30 +131,31 @@ async def create_checkout_session(plan: str = Body("trial", embed=True)):
 
     try:
         if plan == "trial":
-            checkout_session = stripe.checkout.Session.create(
-                payment_method_types=["card"],
-                mode="subscription",
-                line_items=[{
-                    "price": price_map["monthly"],
-                    "quantity": 1,
-                }],
-                subscription_data={
-                    "trial_period_days": 7,
-                    "add_invoice_items": [
-                        {
-                            "price_data": {
-                                "currency": "usd",
-                                "unit_amount": 1290,   # upfront $12.90
-                                "product_data": {
-                                    "name": "TradingVault 7-day Trial Fee"
-                                }
-                            }
-                        }
-                    ]
+    checkout_session = stripe.checkout.Session.create(
+        payment_method_types=["card"],
+        mode="subscription",
+        line_items=[
+            {
+                "price_data": {
+                    "currency": "usd",
+                    "unit_amount": 1290,   # upfront $12.90
+                    "product_data": {
+                        "name": "TradingVault 7-day Trial Fee"
+                    },
                 },
-                success_url="https://tradingvault.base44.app/?status=success",
-                cancel_url="https://tradingvault.base44.app/?status=cancel",
-            )
+                "quantity": 1,
+            },
+            {
+                "price": price_map["monthly"],  # $29.90 / month
+                "quantity": 1,
+            }
+        ],
+        subscription_data={
+            "trial_period_days": 7,
+        },
+        success_url="https://tradingvault.base44.app/?status=success",
+        cancel_url="https://tradingvault.base44.app/?status=cancel",
+    )
 
         elif plan == "lifetime":
             checkout_session = stripe.checkout.Session.create(
