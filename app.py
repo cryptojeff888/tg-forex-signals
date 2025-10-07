@@ -11,6 +11,17 @@ from supabase import create_client
 # === 初始化 FastAPI ===
 app = FastAPI()
 
+# === 引入 Stripe & PayPal webhook 路由 ===
+from stripe_webhook import app as stripe_app
+from paypal_webhook import app as paypal_app
+
+# 合并路由进主 app
+for route in stripe_app.routes:
+    app.router.routes.append(route)
+
+for route in paypal_app.routes:
+    app.router.routes.append(route)
+
 # === CORS 设置（先放开所有域，测试用）===
 app.add_middleware(
     CORSMiddleware,
