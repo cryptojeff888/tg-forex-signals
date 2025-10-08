@@ -8,8 +8,8 @@ from datetime import datetime, timedelta
 # === Railway 环境变量 ===
 SUPABASE_USER_URL = os.getenv("SUPABASE_USER_URL")
 SUPABASE_USER_KEY = os.getenv("SUPABASE_USER_KEY")
-STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")  # 你的 Stripe live secret key
-STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")  # Webhook signing secret
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
 # === 初始化 Supabase & Stripe ===
 supabase = create_client(SUPABASE_USER_URL, SUPABASE_USER_KEY)
@@ -42,24 +42,45 @@ async def stripe_webhook(request: Request):
         email = data.get("customer_email")
         customer_id = data.get("customer")
 
-        # Trial 期间用户就可以进系统了
+        if not email and customer_id:
+            try:
+                customer = stripe.Customer.retrieve(customer_id)
+                email = customer.get("email")
+            except Exception as e:
+                print("⚠️ 获取 email 失败:", e)
+
+        if not email:
+            print(f"⚠️ Skipped checkout webhook - missing email (customer: {customer_id})")
+            return {"status": "skipped"}
+
         expire_at = (datetime.utcnow() + timedelta(days=7)).isoformat()
 
-        supabase.table("subscribers").insert({
+        supabase.table("subscribers").upsert({
             "email": email,
             "tg_username": customer_id or "unknown",
             "plan": "trial",
             "created_at": datetime.utcnow().isoformat(),
             "expired_at": expire_at,
             "status": "active"
-        }).execute()
+        }, on_conflict="email").execute()
 
         print(f"✅ Stripe Trial 已写入 Supabase: {email} -> trial")
 
     # ========== 订阅扣款成功 (trial 结束 or 月费续费) ==========
-    elif event_type == "invoice.paid":
+    elif event_type in ["invoice.paid", "invoice.payment_succeeded"]:
         customer_id = data.get("customer")
         email = data.get("customer_email")
+
+        if not email and customer_id:
+            try:
+                customer = stripe.Customer.retrieve(customer_id)
+                email = customer.get("email")
+            except Exception as e:
+                print("⚠️ 无法获取 email:", e)
+
+        if not email:
+            print(f"⚠️ Skipped invoice webhook - missing email (customer: {customer_id})")
+            return {"status": "skipped"}
 
         expire_at = (datetime.utcnow() + timedelta(days=30)).isoformat()
 
