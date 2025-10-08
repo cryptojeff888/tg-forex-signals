@@ -15,11 +15,7 @@ STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 supabase = create_client(SUPABASE_USER_URL, SUPABASE_USER_KEY)
 stripe.api_key = STRIPE_SECRET_KEY
 
-# === FastAPI 应用 ===
-app = FastAPI()
-
-# === Stripe Webhook 入口 ===
-@app.post("/stripe-webhook")
+# ✅ 改成纯函数，不再创建 FastAPI 实例
 async def stripe_webhook(request: Request):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
@@ -37,7 +33,7 @@ async def stripe_webhook(request: Request):
 
     print("🔔 收到 Stripe Webhook:", event_type)
 
-    # ========== 结账完成 ==========
+    # ✅ checkout.session.completed → 12.90 trial
     if event_type == "checkout.session.completed":
         email = data.get("customer_email")
         customer_id = data.get("customer")
