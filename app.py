@@ -11,14 +11,14 @@ from supabase import create_client
 # === 初始化 FastAPI ===
 app = FastAPI()
 
-# === 引入 Stripe & PayPal webhook 路由 ===
-from stripe_webhook import app as stripe_app
-from paypal_webhook import app as paypal_app
+# === 引入 Stripe & PayPal webhook 函数 ===
+from stripe_webhook import stripe_webhook
+from paypal_webhook import app as paypal_app  # PayPal 保持原状
 
-# 合并路由进主 app
-for route in stripe_app.routes:
-    app.router.routes.append(route)
+# ✅ 注册 Stripe webhook 路由（用函数版本）
+app.post("/stripe-webhook")(stripe_webhook)
 
+# ✅ 合并 PayPal 路由进主 app（这段保留）
 for route in paypal_app.routes:
     app.router.routes.append(route)
 
