@@ -161,10 +161,11 @@ async def create_checkout_session(plan: str = Body("trial", embed=True)):
                         "quantity": 1,
                     }
                 ],
-                metadata={"tg_username": "unknown"},   # ✅ 新增
-                subscription_data={
-                    "trial_period_days": 7,
-                },
+                metadata={
+                    "email": email,
+                    "tg_username": tg_username
+                },  # ✅ 将两者一起写入 metadata
+                subscription_data={"trial_period_days": 7},
                 success_url="https://tradingvault.base44.app/?status=success",
                 cancel_url="https://tradingvault.base44.app/?status=cancel",
             )
@@ -177,6 +178,10 @@ async def create_checkout_session(plan: str = Body("trial", embed=True)):
                     "price": price_map["lifetime"],
                     "quantity": 1,
                 }],
+                metadata={
+                    "email": email,
+                    "tg_username": tg_username
+                },  # ✅ 同样写入 metadata
                 success_url="https://tradingvault.base44.app/?status=success",
                 cancel_url="https://tradingvault.base44.app/?status=cancel",
             )
