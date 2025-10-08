@@ -161,6 +161,7 @@ async def create_checkout_session(plan: str = Body("trial", embed=True)):
                         "quantity": 1,
                     }
                 ],
+                metadata={"tg_username": "unknown"},   # ✅ 新增
                 subscription_data={
                     "trial_period_days": 7,
                 },
