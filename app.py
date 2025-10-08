@@ -133,7 +133,11 @@ def start_worker():
 
 # === Stripe Checkout Session 创建接口 ===
 @app.post("/create-checkout-session")
-async def create_checkout_session(plan: str = Body("trial", embed=True)):
+async def create_checkout_session(
+    plan: str = Body("trial", embed=True),
+    email: str = Body(..., embed=True),
+    tg_username: str = Body(..., embed=True)
+):
     # Stripe Price IDs
     price_map = {
         "monthly": "price_1SD6H1EqeYLgpt07bVN9S6xP",    # $29.90 / month
