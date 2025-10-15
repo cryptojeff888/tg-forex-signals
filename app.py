@@ -108,8 +108,8 @@ def worker_loop():
 💹 *Pair:* {sig.get('symbol')}
 📍 {direction_display}
 🎯 *Entry:* {sig.get('entry')}
-✔️ *TP:* {sig.get('tp')}
 🛑 *SL:* {sig.get('sl')}
+✔️ *TP:* {sig.get('tp')}
 
 🏆 *Win Rate:* {sig.get('group_win_rate_calc', 'N/A')}% 
 """
