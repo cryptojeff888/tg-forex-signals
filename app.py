@@ -81,6 +81,24 @@ def worker_loop():
                 if sig_id == last_sent_id:
                     continue  # 已经发过，跳过
 
+                symbol = str(sig.get("symbol") or "").upper()
+
+                # === 黑名单过滤 ===
+                blacklist = ["ADV/ICE", "SIG/NAL", "BAC/KUP"]
+                if any(bad in symbol for bad in blacklist):
+                    print(f"🚫 跳过黑名单 symbol: {symbol}")
+                    continue
+
+                # === 特殊规则：XAU/USD entry=1800 跳过 ===
+                if symbol == "XAU/USD":
+                    try:
+                        entry = float(sig.get("entry") or 0)
+                        if entry == 1800:
+                            print(f"🚫 跳过 XAU/USD entry=1800 的信号")
+                            continue
+                    except Exception:
+                        pass
+
                 # 格式化 direction
                 direction = sig.get("direction", "")
                 if direction:
