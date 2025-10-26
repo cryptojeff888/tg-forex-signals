@@ -11,6 +11,21 @@ from supabase import create_client
 # === 初始化 FastAPI ===
 app = FastAPI()
 
+# === CORS 设置（必须放在所有路由注册之前）===
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://tradingvault.base44.app",
+        "https://tradingvault.pro",
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # === 引入 Stripe & PayPal webhook 函数 ===
 from stripe_webhook import stripe_webhook
 from paypal_webhook import app as paypal_app  # PayPal 保持原状
@@ -21,15 +36,6 @@ app.post("/stripe-webhook")(stripe_webhook)
 # ✅ 合并 PayPal 路由进主 app（这段保留）
 for route in paypal_app.routes:
     app.router.routes.append(route)
-
-# === CORS 设置（先放开所有域，测试用）===
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],   # 生产环境最好改成 https://tradingvault.base44.app
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # === Stripe 初始化 ===
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
