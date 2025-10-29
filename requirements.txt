@@ -2,6 +2,10 @@ fastapi==0.115.0
 uvicorn==0.30.1
 requests==2.31.0
 stripe==9.3.0
-supabase==2.3.0
-httpx==0.24.1
+supabase==2.3.3
+httpx==0.25.0
+gotrue==2.4.1
+postgrest==0.10.6
+storage3==0.6.1
+realtime==1.0.2
 python-dotenv==1.0.1
