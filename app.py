@@ -12,8 +12,6 @@ from supabase import create_client
 app = FastAPI()
 
 # === CORS 设置（必须放在所有路由注册之前）===
-from fastapi.middleware.cors import CORSMiddleware
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -48,8 +46,24 @@ SUPABASE_USER_KEY = os.getenv("SUPABASE_USER_KEY")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)              # 旧的 → 读 signals
-user_db = create_client(SUPABASE_USER_URL, SUPABASE_USER_KEY)     # 新的 → 写用户
+print("\n🧠 Testing Supabase connection...")
+print("Using URL:", SUPABASE_URL)
+print("Key starts with:", SUPABASE_KEY[:25] if SUPABASE_KEY else "❌ Missing")
+
+# 创建 Supabase 客户端
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)              # 主库（fxfx.ai signals）
+user_db = create_client(SUPABASE_USER_URL, SUPABASE_USER_KEY)     # 用户数据库（TradingVault）
+
+# ✅ 启动时测试连接
+try:
+    test_res = supabase.table("signals_with_rates").select("*").limit(1).execute()
+    if test_res.data:
+        print("✅ Supabase Connected OK, sample data:", test_res.data[0])
+    else:
+        print("✅ Connected OK, but no data in signals_with_rates table.")
+except Exception as e:
+    print("❌ Supabase Connection Error:", e)
+
 
 # === Worker 用到的变量 ===
 last_sent_id = None
